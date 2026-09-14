@@ -12,7 +12,7 @@ Unfortunately, LaTeX takes a long time to load with the preamble because it alre
 
 
 ## graphics
-The `\Graphics` command
+The `\Grafik` command
 ### USAGE (full):
 ` \graphic[width]{label}{text}{filepath}(below footnote)<page>|lastframe|[framerate]`
 
@@ -20,7 +20,7 @@ The `\Graphics` command
 
 Just one of `<Page>` and `|LastFrame|`
 
-EXAMPLE: `\Graphics[0.7]{F.Tree}{Photo of a tree}{./Trees/Tree}(From \url{tree.de})<3>`
+EXAMPLE: `\Grafik[0.7]{F.Tree}{Photo of a tree}{./Trees/Tree}(From \url{tree.de})<3>`
 
 EXAMPLE: `\Graphic[0.7]{F.Tree}{Picture of a tree}{./Bäume/Birken/Baum33_jwkj.jpg}(From \url{baum.de})`
 
@@ -30,7 +30,7 @@ EXAMPLE: `\Graphic[0.7]{F.Tree}{Picture of a tree}{./Bäume/Birken/Baum33_jwkj.j
 Equivalent to `\Graphic[{width}]{F.{name}}{{text}}{/{folder of this project}/{name}}({below footnote})<{page}>|{LastFrame}|`
 
 
-EXAMPLE (Minimal): `\Graphics{tree}{photo of a tree}`
+EXAMPLE (Minimal): `\Grafik{tree}{photo of a tree}`
 (equivalent to `\Graphic{F.Tree}{photo of a tree}{/trees/tree}`)
 
 ### USAGE (Motion Graphics):
@@ -46,26 +46,26 @@ To avoid the warning there is a class option `omitFloat`.
 ## equations
 ### USAGE (with label):
 ```
-\Equation{Label}$
+\Gleichung{Label}$
      formula
 $
 ```
-The `\Equation` command creates a separate math formula, which has a label of {Label} instead of a number and can be multi-line (uses a `split` environment). The rows are right-aligned by default, but you can use `&` to align the equation itself.
+The `\Gleichung` command creates a separate math formula, which has a label of {Label} instead of a number and can be multi-line (uses a `split` environment). The rows are right-aligned by default, but you can use `&` to align the equation itself.
 
 Commas `,` and periods `.` after the command are recognized and sucked into the equation so that no line accidentally begins with a punctuation mark.
 
-So you can just prefix an inline math formula with `\Equation*` and it's a remote formula and supports multiple lines.
+So you can just prefix an inline math formula with `\Gleichung*` and it's a remote formula and supports multiple lines.
 
 `\autoref{G.{Label}}` then creates link with "equation {label}", `\ref{G.{Label}}` creates link with {label}.
 
-EXAMPLE: `\Equation{product rule}$ \fa{a,b \in \algstr A} D(a b) = D(a) b + a D(b).$`
+EXAMPLE: `\Gleichung{product rule}$ \fa{a,b \in \algstr A} D(a b) = D(a) b + a D(b).$`
 ...
 Here we use the \ref{G.product rule}...
 
 
 ### USAGE (unlabeled):
 ```
-\Equation*$
+\Gleichung*$
          f(x) \vs{x}{x_0} F
          &\dgdw
          \fa{ε>0} \ex{δ>0}

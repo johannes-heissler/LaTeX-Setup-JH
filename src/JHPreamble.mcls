@@ -11,6 +11,7 @@
 %%% Options
 \DeclareStringOption[Anonymous author]{author}
 \DeclareStringOption[Empty title]{title}
+\DeclareStringOption[12pt]{fontsize}
 
 \DeclareStringOption{SetupPath}
 \let\JHPreamble@SetupPath\relax 
@@ -22,6 +23,7 @@
 \DeclareBoolOption{simpleTitle}
 
 \DeclareBoolOption{KpMath}
+\DeclareBoolOption{GyrePagella}
 \DeclareBoolOption{STIX}
 \DeclareBoolOption{StandardMathFonts}
 \DeclareBoolOption{StandardTextFonts}

@@ -10,6 +10,7 @@
 %%% Options
 \DeclareStringOption[Anonymous author]{author}
 \DeclareStringOption[Empty title]{title}
+\DeclareStringOption[12pt]{fontsize}
 
 \DeclareStringOption{SetupPath}
 \let\JHPreamble@SetupPath\relax 
@@ -21,6 +22,7 @@
 \DeclareBoolOption{simpleTitle}
 
 \DeclareBoolOption{KpMath}
+\DeclareBoolOption{GyrePagella}
 \DeclareBoolOption{STIX}
 \DeclareBoolOption{StandardMathFonts}
 \DeclareBoolOption{StandardTextFonts}
@@ -135,7 +137,7 @@
 \PassOptionsToPackage{ footinclude=false }{typearea}
 
 \LoadClass[
-	12pt,
+	fontsize=\JHPreamble@fontsize,
 	DIV=13, % Bestimmt monoton fallend die Größe des Rands. 12 für Schriftgröße 12pt voreingestellt.
 	% headheight=18.86pt, %temporär. Hat sich beschwert, ich glaube seit 1.3 der linespread ist. Beschwert sich auch bei lokal größerem Linespread
 	% footheight=18.86pt, % ebenso
@@ -358,22 +360,34 @@
         % \DeclareTextFontCommand{\usefallbackfont}{\fallbackfont}
 
     \else
-        \setmathfont[
-            Path=\__FontPath,
-            version=bold
-        ]{XITSMath-Bold.otf}
-
-        %%% STIX2Math und XITS (STIX)
-        \ifJHPreamble@STIX
+        \ifJHPreamble@GyrePagella
             \setmathfont[
                 Path=\__FontPath,
                 version=normal
-            ]{STIX2Math.otf}
+            ]{texgyrepagella-math.otf}
+
+            \setmathfont[
+                Path=\__FontPath,
+                version=bold
+            ]{KpMath-Bold.otf}
         \else
             \setmathfont[
                 Path=\__FontPath,
-                version=normal
-            ]{XITSMath.otf} 
+                version=bold
+            ]{XITSMath-Bold.otf}
+
+            %%% STIX2Math und XITS (STIX)
+            \ifJHPreamble@STIX
+                \setmathfont[
+                    Path=\__FontPath,
+                    version=normal
+                ]{STIX2Math.otf}
+            \else
+                \setmathfont[
+                    Path=\__FontPath,
+                    version=normal
+                ]{XITSMath.otf} 
+            \fi
         \fi
     \fi
 
@@ -389,11 +403,23 @@
     %     version=sans
     % ]{XITSMath.otf}
     
+    % Was named KpMath-Sans.otf, which collides with a font name TeX Live's own kpfonts-otf
+    % package registers via fonts/latex/kpfonts-otf/KpMath-Sans.fontspec. That file declares
+    % BoldFont=KpMath-SansBold as a *default* font feature for anything named "KpMath-Sans" -
+    % applied by fontspec purely from the name match, regardless of our Path= pointing elsewhere -
+    % and it overrides an explicit BoldFont= given here. Since we didn't ship a bold sans cut,
+    % that default lookup failed with "the font KpMath-SansBold cannot be found", even though we
+    % never asked for a bold sans font ourselves. Renaming our copy to KpMath-Sans-Local.otf avoids
+    % the collision; now that we DO have the real KpMath-SansBold.otf (the file kpfonts-otf expects,
+    % downloaded separately since kpfonts-otf ships it as a system font, not bundled in that CTAN
+    % package's own files), we load it explicitly as BoldFont below rather than relying on the
+    % name-triggered default, which stays inert now that our filename no longer collides.
     \setmathfont[
         Path=\__FontPath,
         % range={up, it, bb, frak, cal, scr, sfup, sfit, bfup,bfit, bfcal},
-        version=sans
-    ]{KpMath-Sans.otf}
+        version=sans,
+        BoldFont=KpMath-SansBold.otf
+    ]{KpMath-Sans-Local.otf}
     % \setmathfont[
     %     Path=\__FontPath,
     %     range={it,up, bb},
@@ -410,39 +436,61 @@
 
 \ifJHPreamble@StandardTextFonts
 \else
-    % \IfFontExistsTF{MinionPro}{
-    \setmainfont{MinionPro}[
-        Path=\__FontPath,
-        Extension = .otf,
-        UprightFont = *-Medium,
-        BoldFont = *-Bold, %SemiBold
-        ItalicFont = *-It, %
-        BoldItalicFont = *-BoldIt, %SemiboldIt
-        Language = German
-    ] % Minion Pro und Myriad Pro sind anscheinend zur privaten Verwendung legal (aus der Installation von Adobe Acrobat Reader zu bekommen)
-    % }{}
+    \ifJHPreamble@GyrePagella
+        \setmainfont{texgyrepagella}[
+            Path=\__FontPath,
+            Extension = .otf,
+            UprightFont = *-regular,
+            BoldFont = *-bold,
+            ItalicFont = *-italic,
+            BoldItalicFont = *-bolditalic, 
+            Language = German
+        ]
+        \setsansfont{texgyreheros}[
+            Path=\__FontPath,
+            Extension = .otf,
+            UprightFont = *-regular,
+            BoldFont = *-bold,
+            ItalicFont = *-italic,
+            BoldItalicFont = *-bolditalic, 
+            Language = German
+        ]
+        % decrease font size by 1pt (these fonts are smaller than Minion and Myriad)
+        
+    \else
+        % \IfFontExistsTF{MinionPro}{
+        \setmainfont{MinionPro}[
+            Path=\__FontPath,
+            Extension = .otf,
+            UprightFont = *-Medium,
+            BoldFont = *-Bold, %SemiBold
+            ItalicFont = *-It, %
+            BoldItalicFont = *-BoldIt, %SemiboldIt
+            Language = German
+        ] % Minion Pro und Myriad Pro sind anscheinend zur privaten Verwendung legal (aus der Installation von Adobe Acrobat Reader zu bekommen)
+        % }{}
 
-    %   \IfFontExistsTF{Myriad-Pro}{
-    \setsansfont{Myriad-Pro}[ %SansSerif 
-        Path=\__FontPath, 
-        UprightFont = *-Regular.ttf,
-        BoldFont = *-Bold.ttf, %SemiBold
-        ItalicFont = *-It.otf, %
-        Language = German,
-        % Script = Default, % Seems to be on CustomDefault although that doesn't exist in the documentaion
-        Contextuals = ResetAll
-    ]
-    % }{}
+        %   \IfFontExistsTF{Myriad-Pro}{
+        \setsansfont{Myriad-Pro}[ %SansSerif 
+            Path=\__FontPath, 
+            UprightFont = *-Regular.ttf,
+            BoldFont = *-Bold.ttf, %SemiBold
+            ItalicFont = *-It.otf, %
+            Language = German,
+            % Script = Default, % Seems to be on CustomDefault although that doesn't exist in the documentaion
+            Contextuals = ResetAll
+        ]
+        % }{}
 
-    %%% Braucht kompliziert konvertierte und installierte Myriad und Minion Type 1 Schriften mit Paketen. (Für pdflatex)
+        %%% Braucht kompliziert konvertierte und installierte Myriad und Minion Type 1 Schriften mit Paketen. (Für pdflatex)
 
-    % \RequirePackage{alphabeta}
-    % \RequirePackage[Path=\__FontPath,lf]{MinionPro}
-    % \RequirePackage[Path=\__FontPath,
-    % 	scale=1,
-    % 	lf,
-    % 	sansmath]{MyriadPro}
-
+        % \RequirePackage{alphabeta}
+        % \RequirePackage[Path=\__FontPath,lf]{MinionPro}
+        % \RequirePackage[Path=\__FontPath,
+        % 	scale=1,
+        % 	lf,
+        % 	sansmath]{MyriadPro}
+    \fi
     
     \newfontfamily\codeFont{CascadiaCode}[
         Path=\__FontPath, 

@@ -12,6 +12,14 @@
 \DeclareStringOption[Empty title]{title}
 \DeclareStringOption[12pt]{fontsize}
 
+% TeX Gyre Pagella has a much larger x-height than Minion Pro, so at the same nominal
+% size it looks roughly one point too big. These factors shrink the TeX Gyre fonts so
+% that GyrePagella at fontsize=12pt matches Minion/Myriad at 12pt. 0.9167 = 11/12.
+% Set GyreScale=1 to switch the correction off; GyreMathScale defaults to GyreScale
+% (texgyrepagella-math is metrically matched to the text font, so it has to follow it).
+\DeclareStringOption[0.9167]{GyreScale}
+\DeclareStringOption{GyreMathScale} % empty = follow GyreScale
+
 \DeclareStringOption{SetupPath}
 \let\JHPreamble@SetupPath\relax 
 % undefine the default value for easy check below. Not equivalent to \DeclareStringOption[\relax]{SetupPath}
@@ -322,6 +330,11 @@
         ]{unicode-math} 
 \fi
 
+% GyreMathScale defaults to GyreScale (see the option declarations in JHPreamble.mcls)
+\ifdefempty{\JHPreamble@GyreMathScale}{
+    \let\JHPreamble@GyreMathScale\JHPreamble@GyreScale
+}{}
+
 \ifJHPreamble@PackagesByPath
     \newcommand{\__FontPath}{\JHPreamble@SetupPath/../../fonts/opentype/}
 \else
@@ -363,6 +376,7 @@
         \ifJHPreamble@GyrePagella
             \setmathfont[
                 Path=\__FontPath,
+                Scale=\JHPreamble@GyreMathScale,
                 version=normal
             ]{texgyrepagella-math.otf}
 
@@ -440,22 +454,35 @@
         \setmainfont{texgyrepagella}[
             Path=\__FontPath,
             Extension = .otf,
+            Scale = \JHPreamble@GyreScale,
             UprightFont = *-regular,
             BoldFont = *-bold,
             ItalicFont = *-italic,
             BoldItalicFont = *-bolditalic, 
             Language = German
         ]
-        \setsansfont{texgyreheros}[
-            Path=\__FontPath,
-            Extension = .otf,
-            UprightFont = *-regular,
-            BoldFont = *-bold,
-            ItalicFont = *-italic,
-            BoldItalicFont = *-bolditalic, 
-            Language = German
+        
+        \setsansfont{Myriad-Pro}[ %SansSerif 
+            Path=\__FontPath, 
+            UprightFont = *-Regular.ttf,
+            BoldFont = *-Bold.ttf, %SemiBold
+            ItalicFont = *-It.otf, %
+            Language = German,
+            % Script = Default, % Seems to be on CustomDefault although that doesn't exist in the documentaion
+            Contextuals = ResetAll
         ]
-        % decrease font size by 1pt (these fonts are smaller than Minion and Myriad)
+        % \setsansfont{texgyreheros}[
+        %     Path=\__FontPath,
+        %     Extension = .otf,
+        %     Scale = \JHPreamble@GyreScale,
+        %     UprightFont = *-regular,
+        %     BoldFont = *-bold,
+        %     ItalicFont = *-italic,
+        %     BoldItalicFont = *-bolditalic, 
+        %     Language = German
+        % ]
+        % Myriad is deliberately left unscaled here: the reference look is Minion/Myriad
+        % at 12pt, and GyreScale brings Pagella down to exactly that size.
         
     \else
         % \IfFontExistsTF{MinionPro}{

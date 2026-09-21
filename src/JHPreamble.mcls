@@ -13,6 +13,14 @@
 \DeclareStringOption[Empty title]{title}
 \DeclareStringOption[12pt]{fontsize}
 
+% TeX Gyre Pagella has a much larger x-height than Minion Pro, so at the same nominal
+% size it looks roughly one point too big. These factors shrink the TeX Gyre fonts so
+% that GyrePagella at fontsize=12pt matches Minion/Myriad at 12pt. 0.9167 = 11/12.
+% Set GyreScale=1 to switch the correction off; GyreMathScale defaults to GyreScale
+% (texgyrepagella-math is metrically matched to the text font, so it has to follow it).
+\DeclareStringOption[0.9167]{GyreScale}
+\DeclareStringOption{GyreMathScale} % empty = follow GyreScale
+
 \DeclareStringOption{SetupPath}
 \let\JHPreamble@SetupPath\relax 
 % undefine the default value for easy check below. Not equivalent to \DeclareStringOption[\relax]{SetupPath}

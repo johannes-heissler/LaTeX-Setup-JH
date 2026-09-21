@@ -7,7 +7,7 @@
     \renewcommand\thmt@autorefsetup{
         \@xa\def\csname\thmt@envname autorefname\@xa\endcsname\@xa{\thmt@thmname}
     }
-} 
+}
 
 \newlength{\JHTheorems_line_width}
 \setlength{\JHTheorems_line_width}{0.2em}
@@ -18,6 +18,51 @@
     \newcommand\__numberwithin{chapter}
 }{
     \newcommand\__numberwithin{section}
+}
+
+% BUG (found 2026-09-21): \autoref/hyperref links to theorem-like environments (Satz,
+% Lemma, Korollar, Definition, DefLemma) jumped to the WRONG chapter -- e.g. a link to
+% Definition 4.5 landed on Definition 3.5 instead. Root cause: hyperref builds each PDF
+% destination name from the environment name plus the raw, un-chapter-qualified counter
+% value (e.g. \theHinternal_Definition = "5" instead of "4.5"). Since that raw counter
+% resets every chapter, the SAME destination name gets reused across chapters, and
+% duplicate PDF destinations collide -- confirmed via
+% "warning (pdf backend): ignoring duplicate destination with the name '...'" in the log,
+% and via internal_Definition.5 in the .aux appearing for BOTH def:carryingMap (3.5) and
+% def:StarSubgraph (4.5).
+%
+% This affects ALL theorem-like environments here, not just the numberlike/"sibling"
+% ones -- even Satz itself (declared directly with numberwithin=\__numberwithin, no
+% aliasing) showed the same collision (internal_Satz.8 shared by both a chapter-2 and a
+% chapter-3 theorem).
+%
+% Investigated whether this is fixable upstream (hyperref/thmtools) instead of patching
+% here:
+%   - The \c@X already defined crash from the thmtools issue #75 link above IS a genuine,
+%     universal upstream incompatibility: it reproduces in a *completely vanilla* document
+%     (plain report + amsthm + thmtools + hyperref, no custom class) as soon as a
+%     chapter-numbered theorem has a numberlike/"sibling" theorem, on this LaTeX kernel
+%     (format 2026-06-01, which added native counter-aliasing that thmtools 0.76 (2023,
+%     still the latest release) doesn't know about and collides with).
+%   - BUT in that same vanilla reproduction, the crash is harmless: LaTeX's error recovery
+%     still leaves CORRECT, chapter-qualified destination names, even in reproductions that
+%     closely mimic \DeclareBoxLinedTheorem (tcolorbox wrapping, xparse-parameterized
+%     environment names, numberlike chains, underscore-containing names, \protect-ed macro
+%     names as "name="). Restoring the code this class's workaround strips out (thmtools'
+%     own \@counteralias-based sibling setup, from thmtools/thm-autoref.sty) inside this
+%     actual class reproduced the exact issue #75 crash again but did NOT fix the wrong
+%     anchors -- so the workaround below isn't the cause either.
+%   - i.e. something ELSE in this class (~1200 lines, many packages/subsystems) flips this
+%     from "cosmetically broken but functionally fine" to "actually broken navigation", and
+%     it wasn't pinned down despite substantial isolated testing. hyperref itself has zero
+%     awareness of \newcounteralias (grepped the installed hyperref.sty), so there is no
+%     released upstream fix to switch to regardless.
+% Until hyperref/thmtools update for the new kernel's alias-counter mechanism, force the
+% correct, guaranteed-unique destination name directly instead:
+\newcommand\JHFixTheoremHyperlink[1]{
+    \expandafter\renewcommand\csname theH#1\endcsname{%
+        \@nameuse{theH\__numberwithin}.\arabic{#1}%
+    }
 }
 \newcommand\theorem_language_set_ngerman:{
     \str_set:cx{ theorem_name_theorem } { Satz }
@@ -283,7 +328,14 @@
             numbered=no,
             name=\protect\theorem_name_proof
         ]{Beweis}
-    \fi    
+    \fi
+
+    % see the "BUG (found 2026-09-21)" comment near \JHFixTheoremHyperlink's definition above
+    \JHFixTheoremHyperlink{internal_Satz}
+    \JHFixTheoremHyperlink{internal_Lemma}
+    \JHFixTheoremHyperlink{internal_Korollar}
+    \JHFixTheoremHyperlink{internal_Definition}
+    \JHFixTheoremHyperlink{internal_DefLemma}
 \else
 
     \declaretheorem[
@@ -367,6 +419,13 @@
             name=\protect\theorem_name_proof
         ]{Beweis}
     \fi
+
+    % see the "BUG (found 2026-09-21)" comment near \JHFixTheoremHyperlink's definition above
+    \JHFixTheoremHyperlink{Satz}
+    \JHFixTheoremHyperlink{Lemma}
+    \JHFixTheoremHyperlink{Korollar}
+    \JHFixTheoremHyperlink{Definition}
+    \JHFixTheoremHyperlink{DefLemma}
 \fi
 
 % not numbered

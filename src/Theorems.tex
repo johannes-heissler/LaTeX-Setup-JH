@@ -253,7 +253,7 @@
     headfont={\itshape},
     notefont={\itshape},
     headformat={\NAME \; \NUMBER \NOTE},
-    qed=\qedsymbol
+    qed=\openbox % not \qedsymbol: thmtools does \protected@edef\qedsymbol{<value>}, which breaks with beamer's fragile \qedsymbol
 ]{JHNewProof}
 
 \declaretheoremstyle[

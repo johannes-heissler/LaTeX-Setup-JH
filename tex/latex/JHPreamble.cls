@@ -125,7 +125,15 @@
 \ifJHPreamble@Presentation
 
 %%% FILE src\PresentationMainSetup.tex  %%%
+\ifJHPreamble@omitTheorems
+\else
+    % noamsthm: beamer would otherwise redefine amsthm internals (\@thm, \@endtheorem, proof)
+    % so that every theorem is typeset with beamer's "theorem begin" block template,
+    % overriding our own theorem styles (Theorems.tex), which load amsthm themselves.
+    \PassOptionsToClass{noamsthm}{beamer}
+\fi
 \LoadClass[
+    \JHPreamble@fontsize,
     notheorems  % doesn't create theorems (removes compilation errors)
 ]{beamer}
 
@@ -1036,7 +1044,7 @@
     headfont={\itshape},
     notefont={\itshape},
     headformat={\NAME \; \NUMBER \NOTE},
-    qed=\qedsymbol
+    qed=\openbox % not \qedsymbol: thmtools does \protected@edef\qedsymbol{<value>}, which breaks with beamer's fragile \qedsymbol
 ]{JHNewProof}
 
 \declaretheoremstyle[

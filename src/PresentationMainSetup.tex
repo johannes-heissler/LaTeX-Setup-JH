@@ -1,4 +1,12 @@
+\ifJHPreamble@omitTheorems
+\else
+    % noamsthm: beamer would otherwise redefine amsthm internals (\@thm, \@endtheorem, proof)
+    % so that every theorem is typeset with beamer's "theorem begin" block template,
+    % overriding our own theorem styles (Theorems.tex), which load amsthm themselves.
+    \PassOptionsToClass{noamsthm}{beamer}
+\fi
 \LoadClass[
+    \JHPreamble@fontsize,
     notheorems  % doesn't create theorems (removes compilation errors)
 ]{beamer}
 
